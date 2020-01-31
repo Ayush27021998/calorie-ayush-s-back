@@ -14,8 +14,8 @@ export class UserService {
     constructor(private readonly authService: AuthService) {}
     async createUser(user: CreateUserDTO, role: { access: number }): Promise<ServiceResponse> {
         const fetchedUser: UserEntity = await UserEntity.findByUserName(user.userName);
-        if (!fetchedUser){
-            if (!fetchedUser.password) {
+        if (!fetchedUser) {
+            if (!user.password) {
                 return ServiceResponse.error(Messages.INVALID_CREDENTIALS);
             } else {
                 if (role.access === Access.MANAGER || role.access === 0 || !user.access){
@@ -27,8 +27,8 @@ export class UserService {
                 } else {
                     newUser.calorie = EDefault.EXPECTED_CALORIE;
                 }
-                const data: UserInterface = await UserEntity.save(newUser);
-                return ServiceResponse.success(data, Messages.SUCCESS, 1);
+                const {userName, name, access} = await UserEntity.save(newUser);
+                return ServiceResponse.success( {userName, name, access}, Messages.SUCCESS, 1);
             }
         } else {
             return ServiceResponse.error(Messages.INVALID_CREDENTIALS + ` : userName \"${user.userName}\" already in use`);
